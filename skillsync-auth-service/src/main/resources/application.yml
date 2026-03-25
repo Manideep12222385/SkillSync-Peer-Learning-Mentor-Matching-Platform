@@ -1,10 +1,6 @@
 spring:
   application:
     name: auth-service
-
+    
   config:
-    import: configserver:http://localhost:8888
-
-  cloud:
-    config:
-      fail-fast: true
+    import: optional:configserver:http://localhost:8888

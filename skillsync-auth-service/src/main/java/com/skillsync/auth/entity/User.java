@@ -2,7 +2,6 @@ package com.skillsync.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,6 +30,8 @@ public class User {
 
     private Boolean enabled;
 
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    private AccountStatus accountStatus;
 
+    private LocalDateTime createdAt;
 }

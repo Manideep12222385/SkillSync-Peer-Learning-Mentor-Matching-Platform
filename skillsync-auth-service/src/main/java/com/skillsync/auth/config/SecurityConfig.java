@@ -31,25 +31,32 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // public
+                        // ⭐ PUBLIC AUTH APIs
                         .requestMatchers(
                                 "/auth/register",
-                                "/auth/login"
+                                "/auth/login",
+                                "/auth/reset-password",
+                                "/auth/forgot-password",
+                                "/auth/internal/**",
+
+                                // ⭐ SWAGGER URLs VERY IMPORTANT
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
                         ).permitAll()
 
-                        // admin APIs
+                        // ⭐ ADMIN APIs
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
 
-                        // mentor APIs
+                        // ⭐ MENTOR APIs
                         .requestMatchers("/mentor/**")
-                        .hasAnyRole("MENTOR","ADMIN")
+                        .hasAnyRole("MENTOR", "ADMIN")
 
-                        // learner APIs
+                        // ⭐ LEARNER APIs
                         .requestMatchers("/learner/**")
-                        .hasAnyRole("LEARNER","MENTOR","ADMIN")
+                        .hasAnyRole("LEARNER", "MENTOR", "ADMIN")
 
-                        // others secured
                         .anyRequest().authenticated()
                 )
 

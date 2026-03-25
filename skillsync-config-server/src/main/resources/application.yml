@@ -4,10 +4,11 @@ server:
 spring:
   application:
     name: config-server
-
   cloud:
     config:
       server:
         git:
           uri: https://github.com/Manideep12222385/SkillSync-config-server
           clone-on-start: true
+          default-label: main
+          search-paths: configs

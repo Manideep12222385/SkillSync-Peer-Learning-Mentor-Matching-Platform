@@ -26,4 +26,11 @@ public class RegisterRequestDto {
 
     @NotBlank(message = "Confirm password is required")
     private String confirmPassword;
+
+    @NotBlank(message = "Role is required")
+    @Pattern(
+            regexp = "ROLE_LEARNER|ROLE_MENTOR",
+            message = "Role must be ROLE_LEARNER or ROLE_MENTOR"
+    )
+    private String role;
 }
