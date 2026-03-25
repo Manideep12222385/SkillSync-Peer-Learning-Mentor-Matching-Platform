@@ -1,6 +1,7 @@
 package com.skillsync.session.controller;
 
 import com.skillsync.session.dto.SessionRequestDTO;
+import com.skillsync.session.dto.SessionResponse;
 import com.skillsync.session.entity.Session;
 import com.skillsync.session.entity.SessionStatus;
 import com.skillsync.session.service.SessionService;
@@ -103,5 +104,10 @@ public class SessionController {
     @GetMapping("/{id}/completed")
     public Boolean isCompleted(@PathVariable Long id) {
         return service.isSessionCompleted(id);
+    }
+    
+    @GetMapping("/{id}")
+    public SessionResponse getSession(@PathVariable Long id) {
+        return service.getSession(id);
     }
 }

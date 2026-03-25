@@ -3,6 +3,7 @@ package com.skillsync.session.service;
 import com.skillsync.session.client.MentorClient;
 import com.skillsync.session.client.UserClient;
 import com.skillsync.session.dto.SessionRequestDTO;
+import com.skillsync.session.dto.SessionResponse;
 import com.skillsync.session.entity.Session;
 import com.skillsync.session.entity.SessionStatus;
 import com.skillsync.session.event.SessionEvent;
@@ -175,5 +176,18 @@ public class SessionService {
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
         return session.getStatus() == SessionStatus.COMPLETED;
+    }
+    
+    public SessionResponse getSession(Long id) {
+
+        Session session = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        return SessionResponse.builder()
+                .id(session.getId())
+                .mentorId(session.getMentorId())
+                .learnerId(session.getLearnerId())
+                .status(session.getStatus().name())
+                .build();
     }
 }

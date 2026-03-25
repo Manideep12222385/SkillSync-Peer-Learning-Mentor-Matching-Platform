@@ -2,6 +2,8 @@ package com.skillsync.review.service;
 
 import com.skillsync.review.client.MentorClient;
 import com.skillsync.review.client.SessionClient;
+import com.skillsync.review.dto.ReviewRequest;
+import com.skillsync.review.dto.SessionDTO;
 import com.skillsync.review.entity.Review;
 import com.skillsync.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,29 +21,55 @@ public class ReviewService {
 	private final MentorClient mentorClient;
 
 	// ⭐ SUBMIT REVIEW
-	public Review submitReview(Review review) {
+	public Review submitReview(ReviewRequest request, Long learnerId) {
 
-		Boolean completed = sessionClient.isSessionCompleted(review.getSessionId());
+	    SessionDTO session;
 
-		if (completed == null || !completed) {
-			throw new RuntimeException("Review allowed only after session completion");
-		}
+	    try {
+	        session = sessionClient.getSession(request.getSessionId());
+	    }
+	    catch (Exception ex) {
+	        throw new RuntimeException("Session not found or invalid session id");
+	    }
 
-		if (review.getRating() < 1 || review.getRating() > 5) {
-			throw new RuntimeException("Rating must be between 1 and 5");
-		}
+	    if (session == null) {
+	        throw new RuntimeException("Session not found");
+	    }
 
-		review.setCreatedAt(LocalDateTime.now());
+	    if (!session.getLearnerId().equals(learnerId)) {
+	        throw new RuntimeException("You can review only your own sessions");
+	    }
 
-		Review saved = repository.save(review);
+	    if (!"COMPLETED".equalsIgnoreCase(session.getStatus())) {
+	        throw new RuntimeException("Review allowed only after session completion");
+	    }
 
-		// ⭐ calculate avg rating
-		Double avg = getAverageRating(review.getMentorId());
+	    if (repository.existsBySessionId(request.getSessionId())) {
+	        throw new RuntimeException("Review already submitted for this session");
+	    }
 
-		// ⭐ call mentor service
-		mentorClient.updateMentorRating(review.getMentorId(), avg);
+	    Integer rating = request.getRating();
 
-		return saved;
+	    if (rating == null || rating < 1 || rating > 5) {
+	        throw new RuntimeException("Rating must be between 1 and 5");
+	    }
+
+	    Review review = Review.builder()
+	            .mentorId(session.getMentorId())
+	            .learnerId(learnerId)
+	            .sessionId(request.getSessionId())
+	            .rating(rating)
+	            .comment(request.getComment())
+	            .createdAt(LocalDateTime.now())
+	            .build();
+
+	    Review saved = repository.save(review);
+
+	    Double avg = getAverageRating(session.getMentorId());
+
+	    mentorClient.updateMentorRating(session.getMentorId(), avg);
+
+	    return saved;
 	}
 
 	// ⭐ GET ALL REVIEWS FOR MENTOR

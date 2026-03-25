@@ -10,4 +10,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByMentorId(Long mentorId);
 
     List<Review> findByLearnerId(Long learnerId);
+    
+    boolean existsBySessionId(Long sessionId);
+    
 }

@@ -1,8 +1,11 @@
 package com.skillsync.review.controller;
 
+import com.skillsync.review.dto.ReviewRequest;
 import com.skillsync.review.entity.Review;
 import com.skillsync.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,37 +17,32 @@ public class ReviewController {
 
     private final ReviewService service;
 
-    // ⭐ SUBMIT REVIEW
+    // ⭐ SUBMIT REVIEW (SECURED)
     @PostMapping
-    public Review submit(@RequestBody Review review) {
-        return service.submitReview(review);
+    public Review submit(
+            @RequestBody ReviewRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Long learnerId = jwt.getClaim("userId");
+
+        return service.submitReview(request, learnerId);
     }
 
-    // ⭐ GET REVIEWS FOR MENTOR
     @GetMapping("/mentor/{mentorId}")
-    public List<Review> mentorReviews(
-            @PathVariable Long mentorId) {
-
+    public List<Review> mentorReviews(@PathVariable Long mentorId) {
         return service.getMentorReviews(mentorId);
     }
 
-    // ⭐ GET AVG RATING
     @GetMapping("/mentor/{mentorId}/average")
-    public Double averageRating(
-            @PathVariable Long mentorId) {
-
+    public Double averageRating(@PathVariable Long mentorId) {
         return service.getAverageRating(mentorId);
     }
 
-    // ⭐ GET REVIEWS BY LEARNER
     @GetMapping("/learner/{learnerId}")
-    public List<Review> learnerReviews(
-            @PathVariable Long learnerId) {
-
+    public List<Review> learnerReviews(@PathVariable Long learnerId) {
         return service.getLearnerReviews(learnerId);
     }
 
-    // ⭐ DELETE REVIEW
     @DeleteMapping("/{id}")
     public String deleteReview(@PathVariable Long id) {
         service.deleteReview(id);
