@@ -7,7 +7,8 @@ import com.skillsync.session.entity.SessionStatus;
 import com.skillsync.session.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,90 +23,115 @@ public class SessionController {
 
     private final SessionService service;
 
-    // ⭐ BOOK SESSION
-    @PostMapping
-    public Session request(@RequestBody SessionRequestDTO dto) {
-        return service.requestSession(dto);
+    // ⭐ mentor creates slot
+    @PostMapping("/createSlot")
+    public Session createSlot(
+            @RequestBody SessionRequestDTO dto,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Long mentorId = ((Number) jwt.getClaim("userId")).longValue();
+        return service.createSlot(dto, mentorId);
     }
 
-    // ⭐ ACCEPT
-    @PutMapping("/{id}/accept")
-    public Session accept(@PathVariable Long id) {
-        return service.acceptSession(id);
+    // ⭐ learner requests slot
+    @PostMapping("/{id}/request")
+    public Session requestSlot(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Long learnerId = ((Number) jwt.getClaim("userId")).longValue();
+        return service.requestSlot(id, learnerId);
     }
 
-    // ⭐ REJECT
-    @PutMapping("/{id}/reject")
-    public Session reject(@PathVariable Long id) {
-        return service.rejectSession(id);
+    // ⭐ mentor accepts
+    @PostMapping("/{id}/accept")
+    public Session accept(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Long mentorId = ((Number) jwt.getClaim("userId")).longValue();
+        return service.acceptSession(id, mentorId);
     }
 
-    // ⭐ CANCEL
-    @PutMapping("/{id}/cancel")
-    public Session cancel(@PathVariable Long id) {
-        return service.cancelSession(id);
+    // ⭐ mentor rejects
+    @PostMapping("/{id}/reject")
+    public Session reject(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Long mentorId = ((Number) jwt.getClaim("userId")).longValue();
+        return service.rejectSession(id, mentorId);
     }
 
-    // ⭐ COMPLETE
-    @PutMapping("/{id}/complete")
-    public Session complete(@PathVariable Long id) {
-        return service.completeSession(id);
+    // ⭐ learner cancels
+    @PostMapping("/{id}/cancel")
+    public Session cancel(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Long learnerId = ((Number) jwt.getClaim("userId")).longValue();
+        return service.cancelSession(id, learnerId);
     }
 
-    // ⭐ LEARNER HISTORY (simple)
-    @GetMapping("/learner/{learnerId}")
-    public List<Session> learnerSessions(@PathVariable Long learnerId) {
-        return service.getLearnerSessions(learnerId);
+    // ⭐ mentor completes
+    @PostMapping("/{id}/complete")
+    public Session complete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Long mentorId = ((Number) jwt.getClaim("userId")).longValue();
+        return service.completeSession(id, mentorId);
     }
 
-    // ⭐ MENTOR DASHBOARD (simple)
+    // ⭐ queries
     @GetMapping("/mentor/{mentorId}")
     public List<Session> mentorSessions(@PathVariable Long mentorId) {
         return service.getMentorSessions(mentorId);
     }
 
-    // ⭐ PAGINATION — mentor
+    @GetMapping("/learner/{learnerId}")
+    public List<Session> learnerSessions(@PathVariable Long learnerId) {
+        return service.getLearnerSessions(learnerId);
+    }
+
     @GetMapping("/mentor/{mentorId}/paged")
-    public Page<Session> mentorSessionsPaged(
+    public Page<Session> mentorPaged(
             @PathVariable Long mentorId,
             @PageableDefault(size = 5) Pageable pageable) {
 
         return service.getMentorSessionsPaged(mentorId, pageable);
     }
 
-    // ⭐ PAGINATION — learner
     @GetMapping("/learner/{learnerId}/paged")
-    public Page<Session> learnerSessionsPaged(
+    public Page<Session> learnerPaged(
             @PathVariable Long learnerId,
             @PageableDefault(size = 5) Pageable pageable) {
 
         return service.getLearnerSessionsPaged(learnerId, pageable);
     }
 
-    // ⭐ FILTER BY STATUS
     @GetMapping("/status/{status}")
-    public Page<Session> sessionsByStatus(
+    public Page<Session> statusFilter(
             @PathVariable SessionStatus status,
             Pageable pageable) {
 
         return service.getSessionsByStatus(status, pageable);
     }
 
-    // ⭐ FILTER BY DATE RANGE
     @GetMapping("/date-range")
-    public Page<Session> sessionsByDateRange(
+    public Page<Session> dateFilter(
             @RequestParam LocalDateTime start,
             @RequestParam LocalDateTime end,
             Pageable pageable) {
 
         return service.getSessionsByDateRange(start, end, pageable);
     }
-    
+
     @GetMapping("/{id}/completed")
-    public Boolean isCompleted(@PathVariable Long id) {
+    public Boolean completed(@PathVariable Long id) {
         return service.isSessionCompleted(id);
     }
-    
+
     @GetMapping("/{id}")
     public SessionResponse getSession(@PathVariable Long id) {
         return service.getSession(id);

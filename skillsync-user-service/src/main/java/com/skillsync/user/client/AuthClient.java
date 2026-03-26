@@ -7,5 +7,5 @@ import org.springframework.web.bind.annotation.*;
 public interface AuthClient {
 
     @GetMapping("/auth/validate/{userId}")
-    Boolean validateUser(@PathVariable Long userId);
+    Boolean validateUser(@PathVariable("userId") Long userId);
 }

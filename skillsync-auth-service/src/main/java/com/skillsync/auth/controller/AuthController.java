@@ -44,6 +44,21 @@ public class AuthController {
     public Boolean userExists(@PathVariable Long userId) {
         return userRepository.existsById(userId);
     }
+
+    @GetMapping("/internal/users/{userId}/email")
+    public String getUserEmail(@PathVariable Long userId) {
+        return userRepository.findById(userId)
+                .map(com.skillsync.auth.entity.User::getEmail)
+                .orElse("unknown@example.com");
+    }
+
+    @GetMapping("/internal/users/{userId}/name")
+    public String getUserName(@PathVariable Long userId) {
+        return userRepository.findById(userId)
+                .map(com.skillsync.auth.entity.User::getUsername)
+                .orElse("User");
+    }
+
     
     @PostMapping("/forgot-password")
     public String forgotPassword(

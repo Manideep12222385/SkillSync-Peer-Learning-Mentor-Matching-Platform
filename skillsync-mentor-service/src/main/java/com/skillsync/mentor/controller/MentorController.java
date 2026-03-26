@@ -10,6 +10,7 @@ import com.skillsync.mentor.security.JwtUtil;
 import com.skillsync.mentor.service.MentorService;
 
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/mentors")
@@ -23,30 +24,54 @@ public class MentorController {
 
     @PostMapping("/profile")
     public MentorProfileResponseDto createProfile(
-            @RequestHeader("Authorization") String token,
+            HttpServletRequest httpRequest,
             @Valid @RequestBody CreateMentorProfileRequestDto request) {
 
+        String token = extractToken(httpRequest);
         Long userId = jwtUtil.extractUserId(token);
-        request.setUserId(userId);
 
-        return mentorService.createProfile(request);
+        return mentorService.createProfile(userId, request);
     }
 
-    @PutMapping("/{mentorId}")
+    @PutMapping("/profile")
     public MentorProfileResponseDto updateProfile(
-            @PathVariable Long mentorId,
-            @RequestHeader("Authorization") String token,
+            HttpServletRequest httpRequest,
             @RequestBody UpdateMentorProfileRequestDto request) {
 
-        return mentorService.updateProfile(mentorId, request);
+        String token = extractToken(httpRequest);
+        Long userId = jwtUtil.extractUserId(token);
+
+        return mentorService.updateProfile(userId, request);
     }
 
-    @PostMapping("/{mentorId}/skills/{skillId}")
-    public String addSkill(
-            @PathVariable Long mentorId,
-            @PathVariable Long skillId) {
+    private String extractToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        throw new RuntimeException("Missing or invalid Authorization header");
+    }
 
-        return mentorService.addSkillToMentor(mentorId, skillId);
+    @PutMapping("/profile/skills/{skillId}")
+    public String addSkillPut(
+            @PathVariable Long skillId,
+            HttpServletRequest httpRequest) {
+
+        String token = extractToken(httpRequest);
+        Long userId = jwtUtil.extractUserId(token);
+
+        return mentorService.addSkillToMentor(userId, skillId);
+    }
+
+    @PostMapping("/profile/skills/{skillId}")
+    public String addSkillPost(
+            @PathVariable Long skillId,
+            HttpServletRequest httpRequest) {
+
+        String token = extractToken(httpRequest);
+        Long userId = jwtUtil.extractUserId(token);
+
+        return mentorService.addSkillToMentor(userId, skillId);
     }
 
     @GetMapping("/search")
@@ -98,22 +123,28 @@ public class MentorController {
         return mentorService.mentorExists(mentorId);
     }
 
+    @GetMapping("/internal/{mentorId}/userid")
+    public Long getUserIdByMentorId(@PathVariable Long mentorId) {
+        return mentorService.getUserIdByMentorId(mentorId);
+    }
+    
+    @GetMapping("/by-user/{id}")
+    public Long getMentorIdByUserId(@PathVariable("id") Long userId) {
+        return mentorService.getMentorIdByUserId(userId);
+    }
+    
+    @io.swagger.v3.oas.annotations.Hidden
     @PutMapping("/{mentorId}/rating")
     public String updateRating(
             @PathVariable Long mentorId,
-            @RequestParam Double rating) {
+            @RequestParam Double rating,
+            @RequestHeader(value = "X-Internal-Secret", required = false) String secret) {
+
+        if (!"internal_secret_key_123".equals(secret)) {
+            throw new RuntimeException("Direct external access to this internal API is strictly forbidden.");
+        }
 
         mentorService.updateRating(mentorId, rating);
         return "Rating updated";
-    }
-
-    @PutMapping("/admin/{mentorId}/approve")
-    public String approve(@PathVariable Long mentorId) {
-        return mentorService.approveMentor(mentorId);
-    }
-
-    @PutMapping("/admin/{mentorId}/reject")
-    public String reject(@PathVariable Long mentorId) {
-        return mentorService.rejectMentor(mentorId);
     }
 }

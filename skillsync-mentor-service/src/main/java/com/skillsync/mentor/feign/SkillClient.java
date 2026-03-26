@@ -9,5 +9,5 @@ import com.skillsync.mentor.dto.SkillDto;
 public interface SkillClient {
 
     @GetMapping("/skills/{skillId}")
-    SkillDto getSkillById(@PathVariable Long skillId);
+    SkillDto getSkillById(@PathVariable("skillId") Long skillId);
 }

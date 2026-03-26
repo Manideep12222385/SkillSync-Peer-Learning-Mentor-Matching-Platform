@@ -3,8 +3,12 @@ spring:
     name: review-service
 
   config:
-    import: configserver:http://localhost:8888
+    import: configserver:http://localhost:8888, optional:file:.env[.properties]
 
   cloud:
     config:
       fail-fast: true
+logging:
+  level:
+    com.skillsync.review.client: DEBUG
+    feign: DEBUG

@@ -6,9 +6,6 @@ import lombok.*;
 @Data
 public class CreateMentorProfileRequestDto {
 
-    @NotNull
-    private Long userId;
-
     @NotBlank
     private String bio;
 

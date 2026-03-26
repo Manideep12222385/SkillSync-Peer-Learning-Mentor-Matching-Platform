@@ -3,7 +3,7 @@ spring:
     name: mentor-service
 
   config:
-    import: configserver:http://localhost:8888
+    import: configserver:http://localhost:8888, optional:file:.env[.properties]
 
   cloud:
     config:

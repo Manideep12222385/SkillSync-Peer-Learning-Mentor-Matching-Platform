@@ -1,10 +1,11 @@
 package com.skillsync.skill.service;
-
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import com.skillsync.skill.dto.*;
 import com.skillsync.skill.entity.Skill;
@@ -16,6 +17,7 @@ public class SkillService {
     @Autowired
     private SkillRepository skillRepository;
 
+    @CacheEvict(value = "skills", allEntries = true)
     public SkillResponseDto createSkill(CreateSkillRequestDto request) {
 
         skillRepository.findBySkillName(request.getSkillName())
@@ -35,6 +37,7 @@ public class SkillService {
         return map(skill, "Skill created");
     }
 
+    @CacheEvict(value = "skills", allEntries = true)
     public SkillResponseDto updateSkill(
             Long skillId,
             UpdateSkillRequestDto request) {
@@ -56,6 +59,7 @@ public class SkillService {
         return map(skill, "Skill updated");
     }
 
+    @CacheEvict(value = "skills", allEntries = true)
     public String deleteSkill(Long skillId) {
 
         Skill skill = skillRepository.findById(skillId)
@@ -66,12 +70,14 @@ public class SkillService {
         return "Skill deleted";
     }
 
+    @Cacheable(value = "skills")
     public Page<Skill> getAllActiveSkills(int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size);
         return skillRepository.findByActiveTrue(pageable);
     }
 
+    @Cacheable(value = "skills")
     public Page<Skill> searchSkills(
             String keyword,
             int page,
@@ -93,6 +99,7 @@ public class SkillService {
                 .build();
     }
     
+    @Cacheable(value = "skills")
     public Boolean skillExists(Long skillId) {
         return skillRepository.existsBySkillIdAndActiveTrue(skillId);
     }

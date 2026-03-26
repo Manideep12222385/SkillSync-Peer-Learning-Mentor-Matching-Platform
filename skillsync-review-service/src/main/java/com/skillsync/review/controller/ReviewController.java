@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/reviews")
@@ -20,10 +21,10 @@ public class ReviewController {
     // ⭐ SUBMIT REVIEW (SECURED)
     @PostMapping
     public Review submit(
-            @RequestBody ReviewRequest request,
+            @Valid @RequestBody ReviewRequest request,
             @AuthenticationPrincipal Jwt jwt) {
 
-        Long learnerId = jwt.getClaim("userId");
+        Long learnerId = ((Number) jwt.getClaim("userId")).longValue();
 
         return service.submitReview(request, learnerId);
     }
@@ -43,9 +44,23 @@ public class ReviewController {
         return service.getLearnerReviews(learnerId);
     }
 
+    @PutMapping("/{id}")
+    public Review editReview(
+            @PathVariable Long id,
+            @Valid @RequestBody ReviewRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Long learnerId = ((Number) jwt.getClaim("userId")).longValue();
+        return service.editReview(id, request, learnerId);
+    }
+
     @DeleteMapping("/{id}")
-    public String deleteReview(@PathVariable Long id) {
-        service.deleteReview(id);
+    public String deleteReview(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+            
+        Long learnerId = ((Number) jwt.getClaim("userId")).longValue();
+        service.deleteReview(id, learnerId);
         return "Review deleted successfully";
     }
 }

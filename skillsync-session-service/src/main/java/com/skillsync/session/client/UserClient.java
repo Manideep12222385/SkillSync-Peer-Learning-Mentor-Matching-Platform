@@ -7,5 +7,5 @@ import org.springframework.web.bind.annotation.*;
 public interface UserClient {
 
     @GetMapping("/users/exists/{userId}")
-    Boolean userExists(@PathVariable Long userId);
+    Boolean userExists(@PathVariable("userId") Long userId);
 }

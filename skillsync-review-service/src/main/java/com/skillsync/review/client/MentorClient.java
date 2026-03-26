@@ -8,6 +8,7 @@ public interface MentorClient {
 
     @PutMapping("/mentors/{id}/rating")
     void updateMentorRating(
-            @PathVariable Long id,
-            @RequestParam Double rating);
+            @PathVariable("id") Long id,
+            @RequestParam("rating") Double rating,
+            @RequestHeader("X-Internal-Secret") String secret);
 }

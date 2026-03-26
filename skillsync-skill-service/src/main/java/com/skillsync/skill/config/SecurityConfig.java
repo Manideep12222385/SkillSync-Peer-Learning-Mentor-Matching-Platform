@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.http.HttpMethod;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -20,67 +21,57 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private static final String SECRET =
-            "skillsyncsecretkeyskillsyncsecretkey";
+        private static final String SECRET = "skillsyncsecretkeyskillsyncsecretkey";
 
-    // ⭐ inject custom handlers
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private final CustomAuthEntryPoint customAuthEntryPoint;
+        // ⭐ inject custom handlers
+        private final CustomAccessDeniedHandler customAccessDeniedHandler;
+        private final CustomAuthEntryPoint customAuthEntryPoint;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> {})
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .cors(cors -> {
+                                })
 
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/skills/**").hasRole("ADMIN")
-                    .anyRequest().permitAll()
-            )
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(HttpMethod.GET, "/skills", "/skills/search", "/skills/exists/**").permitAll()
+                                                .requestMatchers("/skills/**").hasRole("ADMIN")
+                                                .anyRequest().permitAll())
 
-            // ⭐ ADD THIS BLOCK (very important)
-            .exceptionHandling(ex -> ex
-                    .accessDeniedHandler(customAccessDeniedHandler)
-                    .authenticationEntryPoint(customAuthEntryPoint)
-            )
+                                // ⭐ ADD THIS BLOCK (very important)
+                                .exceptionHandling(ex -> ex
+                                                .accessDeniedHandler(customAccessDeniedHandler)
+                                                .authenticationEntryPoint(customAuthEntryPoint))
 
-            .oauth2ResourceServer(oauth ->
-                    oauth.jwt(jwt ->
-                            jwt.jwtAuthenticationConverter(
-                                    jwtAuthenticationConverter()
-                            )
-                    )
-            );
+                                .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(
+                                                jwtAuthenticationConverter())));
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
+        @Bean
+        public JwtDecoder jwtDecoder() {
 
-        SecretKey key =
-                new SecretKeySpec(SECRET.getBytes(), "HmacSHA256");
+                SecretKey key = new SecretKeySpec(SECRET.getBytes(), "HmacSHA256");
 
-        return NimbusJwtDecoder
-                .withSecretKey(key)
-                .build();
-    }
+                return NimbusJwtDecoder
+                                .withSecretKey(key)
+                                .build();
+        }
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        @Bean
+        public JwtAuthenticationConverter jwtAuthenticationConverter() {
 
-        JwtGrantedAuthoritiesConverter converter =
-                new JwtGrantedAuthoritiesConverter();
+                JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
 
-        converter.setAuthoritiesClaimName("role");
-        converter.setAuthorityPrefix("");
+                converter.setAuthoritiesClaimName("role");
+                converter.setAuthorityPrefix("");
+                JwtAuthenticationConverter authConverter = new JwtAuthenticationConverter();
 
-        JwtAuthenticationConverter authConverter =
-                new JwtAuthenticationConverter();
+                authConverter.setJwtGrantedAuthoritiesConverter(converter);
 
-        authConverter.setJwtGrantedAuthoritiesConverter(converter);
-
-        return authConverter;
-    }
+                return authConverter;
+        }
 }

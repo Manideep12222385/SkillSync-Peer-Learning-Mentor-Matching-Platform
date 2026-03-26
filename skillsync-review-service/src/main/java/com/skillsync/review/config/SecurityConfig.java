@@ -2,6 +2,7 @@ package com.skillsync.review.config;
 
 import com.skillsync.review.security.JwtAuthEntryPoint;
 import com.skillsync.review.security.JwtAuthConverter;
+import com.skillsync.review.security.CustomAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
 	private final JwtAuthEntryPoint entryPoint;
+	private final CustomAccessDeniedHandler accessDeniedHandler;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -24,18 +26,20 @@ public class SecurityConfig {
 
 				.authorizeHttpRequests(auth -> auth
 
-						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/**").permitAll()
 
 						.requestMatchers(HttpMethod.GET, "/reviews/mentor/**").permitAll()
 
 						// ⭐ ONLY LEARNER CAN REVIEW
 						.requestMatchers(HttpMethod.POST, "/reviews").hasRole("LEARNER")
-
+						.requestMatchers(HttpMethod.PUT, "/reviews/**").hasRole("LEARNER")
 						.requestMatchers(HttpMethod.DELETE, "/reviews/**").hasRole("LEARNER")
 
 						.anyRequest().authenticated())
 
-				.exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint))
+				.exceptionHandling(ex -> ex
+						.accessDeniedHandler(accessDeniedHandler)
+						.authenticationEntryPoint(entryPoint))
 
 				.oauth2ResourceServer(
 						oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtAuthConverter())));

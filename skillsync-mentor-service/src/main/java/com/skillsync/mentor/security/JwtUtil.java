@@ -26,7 +26,7 @@ public class JwtUtil {
                 .parseClaimsJws(token.replace("Bearer ", ""))
                 .getBody();
 
-        return ((Integer) claims.get("userId")).longValue();
+        return ((Number) claims.get("userId")).longValue();
     }
 
     public String extractRole(String token) {

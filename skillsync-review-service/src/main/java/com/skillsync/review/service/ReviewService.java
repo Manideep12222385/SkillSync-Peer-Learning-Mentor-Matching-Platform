@@ -50,10 +50,6 @@ public class ReviewService {
 
 	    Integer rating = request.getRating();
 
-	    if (rating == null || rating < 1 || rating > 5) {
-	        throw new RuntimeException("Rating must be between 1 and 5");
-	    }
-
 	    Review review = Review.builder()
 	            .mentorId(session.getMentorId())
 	            .learnerId(learnerId)
@@ -67,7 +63,7 @@ public class ReviewService {
 
 	    Double avg = getAverageRating(session.getMentorId());
 
-	    mentorClient.updateMentorRating(session.getMentorId(), avg);
+	    mentorClient.updateMentorRating(session.getMentorId(), avg, "internal_secret_key_123");
 
 	    return saved;
 	}
@@ -98,13 +94,40 @@ public class ReviewService {
 		return sum / reviews.size();
 	}
 
-	// ⭐ DELETE REVIEW
-	public void deleteReview(Long id) {
+	// ⭐ EDIT REVIEW
+	public Review editReview(Long id, ReviewRequest request, Long learnerId) {
 
-		if (!repository.existsById(id)) {
-			throw new RuntimeException("Review not found");
+		Review review = repository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Review not found"));
+
+		if (!review.getLearnerId().equals(learnerId)) {
+			throw new RuntimeException("You can only edit your own reviews");
+		}
+
+		review.setRating(request.getRating());
+		review.setComment(request.getComment());
+
+		Review updated = repository.save(review);
+
+		Double avg = getAverageRating(review.getMentorId());
+		mentorClient.updateMentorRating(review.getMentorId(), avg, "internal_secret_key_123");
+
+		return updated;
+	}
+
+	// ⭐ DELETE REVIEW
+	public void deleteReview(Long id, Long learnerId) {
+
+		Review review = repository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Review not found"));
+
+		if (!review.getLearnerId().equals(learnerId)) {
+			throw new RuntimeException("You can only delete your own reviews");
 		}
 
 		repository.deleteById(id);
+
+		Double avg = getAverageRating(review.getMentorId());
+		mentorClient.updateMentorRating(review.getMentorId(), avg, "internal_secret_key_123");
 	}
 }

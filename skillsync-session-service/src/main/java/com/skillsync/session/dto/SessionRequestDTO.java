@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SessionRequestDTO {
 
-    private Long mentorId;
-    private Long learnerId;
     private LocalDateTime sessionTime;
     private Integer durationMinutes;
 }
