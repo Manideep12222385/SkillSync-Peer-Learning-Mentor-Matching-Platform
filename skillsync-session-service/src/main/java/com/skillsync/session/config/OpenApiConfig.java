@@ -9,8 +9,15 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springdoc.core.utils.SpringDocUtils;
+import org.springframework.security.oauth2.jwt.Jwt;
+
 @Configuration
 public class OpenApiConfig {
+
+    static {
+        SpringDocUtils.getConfig().addRequestWrapperToIgnore(Jwt.class);
+    }
 
     @Bean
     public OpenAPI sessionAPI() {

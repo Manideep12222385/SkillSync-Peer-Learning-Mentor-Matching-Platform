@@ -6,7 +6,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.http.HttpMethod;
+
+import java.util.List;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -32,9 +37,7 @@ public class SecurityConfig {
 
                 http
                                 .csrf(csrf -> csrf.disable())
-                                .cors(cors -> {
-                                })
-
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers(HttpMethod.GET, "/skills", "/skills/search", "/skills/exists/**").permitAll()
                                                 .requestMatchers("/skills/**").hasRole("ADMIN")
@@ -73,5 +76,27 @@ public class SecurityConfig {
                 authConverter.setJwtGrantedAuthoritiesConverter(converter);
 
                 return authConverter;
+        }
+        
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+            CorsConfiguration configuration = new CorsConfiguration();
+
+            // Allow the specific origin of your Gateway/Swagger UI
+            configuration.setAllowedOrigins(List.of("http://localhost:8085"));
+
+            // Allow standard methods
+            configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+            // Allow all headers (Content-Type, Authorization, etc.)
+            configuration.setAllowedHeaders(List.of("*"));
+
+            // Allow credentials for Auth headers
+            configuration.setAllowCredentials(true);
+
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            // Applying this configuration to all endpoints
+            source.registerCorsConfiguration("/**", configuration);
+            return source;
         }
 }

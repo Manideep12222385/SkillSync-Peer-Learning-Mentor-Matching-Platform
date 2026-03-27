@@ -10,21 +10,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI skillAPI() {
+        @Bean
+        public OpenAPI userAPI() {
 
-        final String schemeName = "bearerAuth";
+                final String schemeName = "bearerAuth";
 
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Skill Service API")
-                        .version("1.0"))
-                .addSecurityItem(new SecurityRequirement().addList(schemeName))
-                .schemaRequirement(schemeName,
-                        new SecurityScheme()
-                                .name(schemeName)
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT"));
-    }
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("User Service API")
+                                                .version("1.0"))
+                                .addSecurityItem(new SecurityRequirement().addList(schemeName))
+                                .schemaRequirement(schemeName,
+                                                new SecurityScheme()
+                                                                .name(schemeName)
+                                                                .type(SecurityScheme.Type.HTTP)
+                                                                .scheme("bearer")
+                                                                .bearerFormat("JWT"));
+        }
 }
