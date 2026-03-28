@@ -41,22 +41,22 @@ public class SecurityConfig {
                 ).permitAll()
 
                 // ⭐ mentor creates slot
-                .requestMatchers(HttpMethod.POST, "/sessions/slots")
+                .requestMatchers(HttpMethod.POST, "/sessions/createSlot")
                 .hasRole("MENTOR")
 
                 // ⭐ learner books slot
-                .requestMatchers(HttpMethod.PUT, "/sessions/*/request")
+                .requestMatchers(HttpMethod.POST, "/sessions/*/request")
                 .hasRole("LEARNER")
 
                 // ⭐ mentor decisions
-                .requestMatchers(HttpMethod.PUT,
+                .requestMatchers(HttpMethod.POST,
                         "/sessions/*/accept",
                         "/sessions/*/reject",
                         "/sessions/*/complete")
                 .hasRole("MENTOR")
 
                 // ⭐ learner cancel
-                .requestMatchers(HttpMethod.PUT, "/sessions/*/cancel")
+                .requestMatchers(HttpMethod.POST, "/sessions/*/cancel")
                 .hasRole("LEARNER")
 
                 .anyRequest().authenticated()
