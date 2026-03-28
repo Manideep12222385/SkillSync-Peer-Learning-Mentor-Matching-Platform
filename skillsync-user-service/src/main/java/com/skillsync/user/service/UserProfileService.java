@@ -60,10 +60,12 @@ import com.skillsync.user.dto.*;
 import com.skillsync.user.entity.UserProfile;
 import com.skillsync.user.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserProfileService {
 
     private final UserProfileRepository repository;
@@ -72,12 +74,15 @@ public class UserProfileService {
     // ✅ CREATE
     public UserProfileResponse createProfile(Long userId, UserProfileRequest request) {
 
+        log.info("Creating profile for user id: {}", userId);
         if (repository.existsById(userId)) {
+            log.error("Profile already exists for user id: {}", userId);
             throw new RuntimeException("Profile already exists");
         }
 
         Boolean exists = authClient.validateUser(userId);
         if (exists == null || !exists) {
+            log.error("User does not exist in Auth Service for user id: {}", userId);
             throw new RuntimeException("User does not exist in Auth Service");
         }
 
@@ -95,18 +100,24 @@ public class UserProfileService {
 
     // ✅ GET OWN PROFILE
     public UserProfileResponse getProfile(Long userId) {
-
+        log.info("Fetching profile for user id: {}", userId);
         UserProfile profile = repository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> {
+                    log.error("Profile not found for user id: {}", userId);
+                    return new RuntimeException("Profile not found");
+                });
 
         return map(profile);
     }
 
     // ✅ UPDATE OWN PROFILE
     public UserProfileResponse updateProfile(Long userId, UserProfileRequest request) {
-
+        log.info("Updating profile for user id: {}", userId);
         UserProfile existing = repository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> {
+                    log.error("Profile not found for update for user id: {}", userId);
+                    return new RuntimeException("Profile not found");
+                });
 
         if (request.getFullName() != null)
             existing.setFullName(request.getFullName());

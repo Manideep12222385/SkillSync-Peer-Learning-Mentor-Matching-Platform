@@ -16,7 +16,10 @@ import com.skillsync.mentor.repository.MentorSkillRepository;
 import com.skillsync.mentor.specification.MentorSpecification;
 import com.skillsync.mentor.specification.MentorSearchSpecification;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class MentorService {
 
 	@Autowired
@@ -30,15 +33,22 @@ public class MentorService {
 
 	// ⭐ CREATE PROFILE (PENDING)
 	public MentorProfileResponseDto createProfile(Long userId, CreateMentorProfileRequestDto request) {
+		log.info("Creating mentor profile for user id: {}", userId);
 
-		if (mentorRepository.existsByUserId(userId))
+		if (mentorRepository.existsByUserId(userId)) {
+			log.error("Mentor profile already exists for user id: {}", userId);
 			throw new RuntimeException("Mentor profile already exists");
+		}
 
-		if (request.getHourlyRate() < 0)
+		if (request.getHourlyRate() < 0) {
+			log.error("Hourly rate cannot be negative for user id: {}", userId);
 			throw new RuntimeException("Hourly rate cannot be negative");
+		}
 
-		if (request.getExperienceYears() < 0)
+		if (request.getExperienceYears() < 0) {
+			log.error("Experience cannot be negative for user id: {}", userId);
 			throw new RuntimeException("Experience cannot be negative");
+		}
 
 		Mentor mentor = Mentor.builder().userId(userId).bio(request.getBio())
 				.experienceYears(request.getExperienceYears()).hourlyRate(request.getHourlyRate()).averageRating(0.0)
@@ -52,12 +62,18 @@ public class MentorService {
 
 	// ⭐ UPDATE PROFILE
 	public MentorProfileResponseDto updateProfile(Long userId, UpdateMentorProfileRequestDto request) {
+		log.info("Updating mentor profile for user id: {}", userId);
 
 		Mentor mentor = mentorRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Mentor profile not found"));
+                .orElseThrow(() -> {
+					log.error("Mentor profile not found for user id: {}", userId);
+					return new RuntimeException("Mentor profile not found");
+				});
 
-		if (mentor.getStatus() != MentorStatus.APPROVED)
+		if (mentor.getStatus() != MentorStatus.APPROVED) {
+			log.error("Mentor not approved yet for user id: {}", userId);
 			throw new RuntimeException("Mentor not approved yet");
+		}
 
 		if (request.getBio() != null)
 			mentor.setBio(request.getBio());
@@ -78,9 +94,13 @@ public class MentorService {
 
 	// ⭐ ADD SKILL
 	public String addSkillToMentor(Long userId, Long skillId) {
+		log.info("Adding skill id: {} to mentor user id: {}", skillId, userId);
 
 		Mentor mentor = mentorRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Mentor profile not found"));
+                .orElseThrow(() -> {
+					log.error("Mentor profile not found for user id: {}", userId);
+					return new RuntimeException("Mentor profile not found");
+				});
                 
         Long mentorId = mentor.getMentorId();
 
@@ -163,9 +183,12 @@ public class MentorService {
 
 	// ⭐ UPDATE RATING
 	public void updateRating(Long mentorId, Double rating) {
+		log.info("Updating rating for mentor id: {}", mentorId);
 
-		if (rating < 0 || rating > 5)
+		if (rating < 0 || rating > 5) {
+			log.error("Invalid rating: {} for mentor id: {}", rating, mentorId);
 			throw new RuntimeException("Invalid rating");
+		}
 
 		Mentor mentor = mentorRepository.findById(mentorId).orElseThrow(() -> new RuntimeException("Mentor not found"));
 

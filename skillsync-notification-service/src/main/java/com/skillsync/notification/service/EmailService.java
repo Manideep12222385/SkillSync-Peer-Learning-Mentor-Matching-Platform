@@ -3,12 +3,14 @@ package com.skillsync.notification.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailService {
 
     private final JavaMailSender mailSender;
@@ -23,10 +25,10 @@ public class EmailService {
             helper.setText(body, true); // true indicates HTML
             
             mailSender.send(message);
-            System.out.println("Email successfully sent to: " + to);
+            log.info("Email successfully sent to: {}", to);
             
         } catch (MessagingException e) {
-            System.err.println("Failed to send email to " + to + ": " + e.getMessage());
+            log.error("Failed to send email to {}: {}", to, e.getMessage());
         }
     }
 }

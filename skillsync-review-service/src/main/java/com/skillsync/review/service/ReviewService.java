@@ -7,6 +7,7 @@ import com.skillsync.review.dto.SessionDTO;
 import com.skillsync.review.entity.Review;
 import com.skillsync.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReviewService {
 
 	private final ReviewRepository repository;
@@ -22,6 +24,7 @@ public class ReviewService {
 
 	// ⭐ SUBMIT REVIEW
 	public Review submitReview(ReviewRequest request, Long learnerId) {
+		log.info("Submitting review for session id: {} by learner id: {}", request.getSessionId(), learnerId);
 
 	    SessionDTO session;
 
@@ -29,22 +32,27 @@ public class ReviewService {
 	        session = sessionClient.getSession(request.getSessionId());
 	    }
 	    catch (Exception ex) {
+			log.error("Session not found or invalid session id: {}", request.getSessionId(), ex);
 	        throw new RuntimeException("Session not found or invalid session id");
 	    }
 
 	    if (session == null) {
+			log.error("Session response is null for session id: {}", request.getSessionId());
 	        throw new RuntimeException("Session not found");
 	    }
 
 	    if (!session.getLearnerId().equals(learnerId)) {
+			log.error("Learner id: {} attempting to review session belonging to learner id: {}", learnerId, session.getLearnerId());
 	        throw new RuntimeException("You can review only your own sessions");
 	    }
 
 	    if (!"COMPLETED".equalsIgnoreCase(session.getStatus())) {
+			log.error("Attempting to review non-completed session id: {}. Session status: {}", request.getSessionId(), session.getStatus());
 	        throw new RuntimeException("Review allowed only after session completion");
 	    }
 
 	    if (repository.existsBySessionId(request.getSessionId())) {
+			log.error("Review already exists for session id: {}", request.getSessionId());
 	        throw new RuntimeException("Review already submitted for this session");
 	    }
 
@@ -96,11 +104,16 @@ public class ReviewService {
 
 	// ⭐ EDIT REVIEW
 	public Review editReview(Long id, ReviewRequest request, Long learnerId) {
+		log.info("Editing review id: {} by learner id: {}", id, learnerId);
 
 		Review review = repository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Review not found"));
+				.orElseThrow(() -> {
+					log.error("Review not found for id: {}", id);
+					return new RuntimeException("Review not found");
+				});
 
 		if (!review.getLearnerId().equals(learnerId)) {
+			log.error("Learner id: {} attempting to edit review belonging to learner id: {}", learnerId, review.getLearnerId());
 			throw new RuntimeException("You can only edit your own reviews");
 		}
 
@@ -117,11 +130,16 @@ public class ReviewService {
 
 	// ⭐ DELETE REVIEW
 	public void deleteReview(Long id, Long learnerId) {
+		log.info("Deleting review id: {} by learner id: {}", id, learnerId);
 
 		Review review = repository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Review not found"));
+				.orElseThrow(() -> {
+					log.error("Review not found for id: {}", id);
+					return new RuntimeException("Review not found");
+				});
 
 		if (!review.getLearnerId().equals(learnerId)) {
+			log.error("Learner id: {} attempting to delete review belonging to learner id: {}", learnerId, review.getLearnerId());
 			throw new RuntimeException("You can only delete your own reviews");
 		}
 

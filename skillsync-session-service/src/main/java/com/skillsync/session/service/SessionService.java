@@ -8,6 +8,7 @@ import com.skillsync.session.entity.SessionStatus;
 import com.skillsync.session.event.SessionEvent;
 import com.skillsync.session.repository.SessionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SessionService {
 
     private final SessionRepository repository;
@@ -29,9 +31,10 @@ public class SessionService {
 
         // ⭐ fetch mentor profile id
         Long mentorId = mentorClient.getMentorProfileId(userId);
-        System.out.println("Resolved the mentor id of user id "+userId+"as: "+mentorId);
+        log.info("Resolved the mentor id of user id {} as: {}", userId, mentorId);
         
         if (mentorId == null) {
+            log.error("Mentor profile not found or not approved for user id: {}", userId);
             throw new RuntimeException("Mentor profile not found or not approved");
         }
 
@@ -98,7 +101,7 @@ public class SessionService {
         session.setStatus(SessionStatus.REQUESTED);
 
         Session saved = repository.save(session);
-        System.out.println("🔥 BEFORE PUBLISH EVENT");
+        log.info("🔥 BEFORE PUBLISH EVENT for session request");
         publishEvent(saved);
 
         return saved;
@@ -123,7 +126,7 @@ public class SessionService {
         session.setStatus(SessionStatus.ACCEPTED);
 
         Session saved = repository.save(session);
-        System.out.println("🔥 BEFORE PUBLISH EVENT");
+        log.info("🔥 BEFORE PUBLISH EVENT for session acceptance");
         publishEvent(saved);
 
         return saved;
@@ -187,14 +190,14 @@ public class SessionService {
         session.setStatus(SessionStatus.COMPLETED);
 
         Session saved = repository.save(session);
-        System.out.println("🔥 BEFORE PUBLISH EVENT");
+        log.info("🔥 BEFORE PUBLISH EVENT for session completion");
         publishEvent(saved);
 
         return saved;
     }
 
     private void publishEvent(Session session) {
-    	System.out.println("🔥 publishEvent CALLED");
+    	log.info("🔥 publishEvent CALLED for session id: {}", session.getId());
         SessionEvent event = SessionEvent.builder()
                 .sessionId(session.getId())
                 .mentorId(session.getMentorId())
@@ -204,7 +207,7 @@ public class SessionService {
                 .build();
 
         rabbitTemplate.convertAndSend("session.queue", event);
-        System.out.println("📤 EVENT SENT TO RABBITMQ: " + event);
+        log.info("📤 EVENT SENT TO RABBITMQ: {}", event);
     }
 
     public List<Session> getLearnerSessions(Long learnerId) {

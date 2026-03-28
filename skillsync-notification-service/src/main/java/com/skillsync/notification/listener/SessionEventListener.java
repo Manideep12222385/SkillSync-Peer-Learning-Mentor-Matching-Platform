@@ -5,11 +5,13 @@ import com.skillsync.notification.client.MentorClient;
 import com.skillsync.notification.event.SessionEvent;
 import com.skillsync.notification.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class SessionEventListener {
 
     private final EmailService emailService;
@@ -19,7 +21,7 @@ public class SessionEventListener {
     @RabbitListener(queues = "session.queue")
     public void handleSessionEvent(SessionEvent event) {
 
-        System.out.println("📩 Session Event Received: " + event);
+        log.info("📩 Session Event Received: {}", event);
 
         try {
             Long learnerId = event.getLearnerId();
@@ -57,7 +59,7 @@ public class SessionEventListener {
                     break;
             }
         } catch (Exception e) {
-            System.err.println("Error processing notification: " + e.getMessage());
+            log.error("Error processing notification: {}", e.getMessage(), e);
         }
     }
 }

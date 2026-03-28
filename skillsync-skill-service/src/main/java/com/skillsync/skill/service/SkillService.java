@@ -11,7 +11,10 @@ import com.skillsync.skill.dto.*;
 import com.skillsync.skill.entity.Skill;
 import com.skillsync.skill.repository.SkillRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class SkillService {
 
     @Autowired
@@ -19,9 +22,11 @@ public class SkillService {
 
     @CacheEvict(value = "skills", allEntries = true)
     public SkillResponseDto createSkill(CreateSkillRequestDto request) {
+        log.info("Creating skill with name: {}", request.getSkillName());
 
         skillRepository.findBySkillName(request.getSkillName())
                 .ifPresent(s -> {
+                    log.error("Skill already exists: {}", request.getSkillName());
                     throw new RuntimeException("Skill already exists");
                 });
 
@@ -41,9 +46,13 @@ public class SkillService {
     public SkillResponseDto updateSkill(
             Long skillId,
             UpdateSkillRequestDto request) {
+        log.info("Updating skill with id: {}", skillId);
 
         Skill skill = skillRepository.findById(skillId)
-                .orElseThrow(() -> new RuntimeException("Skill not found"));
+                .orElseThrow(() -> {
+                    log.error("Skill not found for id: {}", skillId);
+                    return new RuntimeException("Skill not found");
+                });
 
         if (request.getSkillName() != null)
             skill.setSkillName(request.getSkillName());
@@ -61,9 +70,13 @@ public class SkillService {
 
     @CacheEvict(value = "skills", allEntries = true)
     public String deleteSkill(Long skillId) {
+        log.info("Deleting skill with id: {}", skillId);
 
         Skill skill = skillRepository.findById(skillId)
-                .orElseThrow(() -> new RuntimeException("Skill not found"));
+                .orElseThrow(() -> {
+                    log.error("Skill not found for id: {}", skillId);
+                    return new RuntimeException("Skill not found");
+                });
 
         skillRepository.delete(skill);
 
