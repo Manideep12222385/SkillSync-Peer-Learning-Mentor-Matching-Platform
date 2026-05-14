@@ -13,6 +13,15 @@ import com.skillsync.skill.repository.SkillRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
+/*
+ * ================================================================
+ * AUTHOR: Manideep
+ * CLASS: SkillService
+ * DESCRIPTION:
+ * This service handles all skill operations including CRUD logic,
+ * caching management, and pagination over active database skills.
+ * ================================================================
+ */
 @Service
 @Slf4j
 public class SkillService {
@@ -20,6 +29,11 @@ public class SkillService {
     @Autowired
     private SkillRepository skillRepository;
 
+    /* ================================================================
+     * METHOD: createSkill
+     * DESCRIPTION:
+     * Persists a new skill into the database after verifying its uniqueness.
+     * ================================================================ */
     @CacheEvict(value = "skills", allEntries = true)
     public SkillResponseDto createSkill(CreateSkillRequestDto request) {
         log.info("Creating skill with name: {}", request.getSkillName());
@@ -42,6 +56,11 @@ public class SkillService {
         return map(skill, "Skill created");
     }
 
+    /* ================================================================
+     * METHOD: updateSkill
+     * DESCRIPTION:
+     * Edits an existing skill while evicting relevant skill cache entries.
+     * ================================================================ */
     @CacheEvict(value = "skills", allEntries = true)
     public SkillResponseDto updateSkill(
             Long skillId,
@@ -68,6 +87,11 @@ public class SkillService {
         return map(skill, "Skill updated");
     }
 
+    /* ================================================================
+     * METHOD: deleteSkill
+     * DESCRIPTION:
+     * Physically deletes a skill mapping effectively purging it.
+     * ================================================================ */
     @CacheEvict(value = "skills", allEntries = true)
     public String deleteSkill(Long skillId) {
         log.info("Deleting skill with id: {}", skillId);
@@ -83,6 +107,11 @@ public class SkillService {
         return "Skill deleted";
     }
 
+    /* ================================================================
+     * METHOD: getAllActiveSkills
+     * DESCRIPTION:
+     * Retrieves a paginated subset of all skills that are active.
+     * ================================================================ */
     @Cacheable(value = "skills")
     public Page<Skill> getAllActiveSkills(int page, int size) {
 
@@ -90,6 +119,11 @@ public class SkillService {
         return skillRepository.findByActiveTrue(pageable);
     }
 
+    /* ================================================================
+     * METHOD: searchSkills
+     * DESCRIPTION:
+     * Handles string matching searches against active skill names.
+     * ================================================================ */
     @Cacheable(value = "skills")
     public Page<Skill> searchSkills(
             String keyword,
@@ -101,6 +135,11 @@ public class SkillService {
                 .findBySkillNameContainingIgnoreCase(keyword, pageable);
     }
 
+    /* ================================================================
+     * METHOD: map
+     * DESCRIPTION:
+     * Helper mapper parsing Skill entity models back to DTO variants.
+     * ================================================================ */
     private SkillResponseDto map(Skill skill, String msg) {
 
         return SkillResponseDto.builder()
@@ -112,6 +151,11 @@ public class SkillService {
                 .build();
     }
     
+    /* ================================================================
+     * METHOD: skillExists
+     * DESCRIPTION:
+     * Returns true if a particular active skill id exists natively.
+     * ================================================================ */
     @Cacheable(value = "skills")
     public Boolean skillExists(Long skillId) {
         return skillRepository.existsBySkillIdAndActiveTrue(skillId);

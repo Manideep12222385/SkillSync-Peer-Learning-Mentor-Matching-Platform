@@ -54,8 +54,8 @@ public class GatewayCorsConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // ✅ Explicit origin (BEST for Swagger)
-        config.setAllowedOrigins(Arrays.asList("http://localhost:8085"));
+        // ✅ Explicit origin (BEST for Swagger and Frontend)
+        config.setAllowedOrigins(Arrays.asList("http://localhost:8085", "http://localhost:5173", "http://localhost:5174"));
 
         // ✅ Allow all methods including OPTIONS (important)
         config.setAllowedMethods(Arrays.asList(

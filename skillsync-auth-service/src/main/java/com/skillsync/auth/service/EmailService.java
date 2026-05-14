@@ -5,12 +5,26 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+/*
+ * ================================================================
+ * AUTHOR: Manideep
+ * CLASS: EmailService
+ * DESCRIPTION:
+ * Wrapper implementing JavaMailSender natively utilized specifically 
+ * for dispatching authentication context emails such as OTPs.
+ * ================================================================
+ */
 @Service
 public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
 
+    /* ================================================================
+     * METHOD: sendOtp
+     * DESCRIPTION:
+     * Constructs and executes a text-based email enclosing the system OTP.
+     * ================================================================ */
     public void sendOtp(String email, String otp) {
 
         SimpleMailMessage msg = new SimpleMailMessage();

@@ -15,6 +15,16 @@ import com.skillsync.auth.security.JwtUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
+/*
+ * ================================================================
+ * AUTHOR: Manideep
+ * CLASS: AuthService
+ * DESCRIPTION:
+ * This service implements logic for user registration, authenticating
+ * JWT payloads securely, hashing passwords explicitly, processing 
+ * forgot password tokens, and overriding password constraints manually.
+ * ================================================================
+ */
 @Service
 @Slf4j
 public class AuthService {
@@ -34,6 +44,12 @@ public class AuthService {
     @Autowired
     private EmailService emailService;
 
+    /* ================================================================
+     * METHOD: register
+     * DESCRIPTION:
+     * Enforces structural policies around creating distinct unique accounts, 
+     * encoding constraints inherently within the logic flow.
+     * ================================================================ */
     public RegisterResponseDto register(RegisterRequestDto request) {
         log.info("Attempting to register user with email: {}", request.getEmail());
 
@@ -88,6 +104,12 @@ public class AuthService {
                 .build();
     }
 
+    /* ================================================================
+     * METHOD: login
+     * DESCRIPTION:
+     * Issues contextual JWT tokens for verified users dynamically handling
+     * block statuses effectively.
+     * ================================================================ */
     public LoginResponseDto login(LoginRequestDto request) {
         log.info("Attempting to login user with email: {}", request.getEmail());
 
@@ -102,9 +124,19 @@ public class AuthService {
             throw new RuntimeException("Invalid email or password");
         }
 
-        if (user.getAccountStatus() != AccountStatus.ACTIVE) {
-            log.error("Account not active for user: {}", request.getEmail());
+        if (user.getAccountStatus() == AccountStatus.BLOCKED) {
+            log.error("Account blocked for user: {}", request.getEmail());
+            throw new RuntimeException("Account blocked by admin.");
+        }
+
+        if (user.getAccountStatus() == AccountStatus.PENDING) {
+            log.error("Account pending for user: {}", request.getEmail());
             throw new RuntimeException("Account not active. Please wait for admin approval.");
+        }
+
+        if (user.getAccountStatus() == AccountStatus.REJECTED) {
+            log.error("Account rejected for user: {}", request.getEmail());
+            throw new RuntimeException("Your mentor application has been rejected.");
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getUserId());
@@ -118,11 +150,16 @@ public class AuthService {
                 .message("Login successful")
                 .build();
     }
+    /* ================================================================
+     * METHOD: forgotPassword
+     * DESCRIPTION:
+     * Issues explicit 6-digit expiring token constraints via the Email subsystem.
+     * ================================================================ */
     @Transactional
     public String forgotPassword(String email) {
         log.info("Attempting to reset password for email: {}", email);
 
-        User user = userRepository.findByEmail(email)
+        userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.error("User not found for password reset: {}", email);
                     return new RuntimeException("User not found");
@@ -144,6 +181,12 @@ public class AuthService {
         return "OTP sent to email";
     }
 
+    /* ================================================================
+     * METHOD: resetPassword
+     * DESCRIPTION:
+     * Verifies system OTP structures preventing overlapping resetting instances
+     * and committing secure password hashes exclusively.
+     * ================================================================ */
     @Transactional
     public String resetPassword(ResetPasswordRequestDto request) {
         log.info("Attempting to verify OTP and reset password for email: {}", request.getEmail());

@@ -60,6 +60,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+/*
+ * ================================================================
+ * AUTHOR: Manideep
+ * CLASS: UserProfileController
+ * DESCRIPTION:
+ * This controller handles user profile operations such as creating,
+ * fetching, checking existence, and updating user profiles.
+ * ================================================================
+ */
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -68,6 +77,12 @@ public class UserProfileController {
     private final UserProfileService service;
 
     // ✅ CREATE PROFILE
+    /* ================================================================
+     * METHOD: create
+     * DESCRIPTION:
+     * Creates a new user profile using the provided request data 
+     * and the authenticated user's ID.
+     * ================================================================ */
     @PostMapping("/profile")
     public UserProfileResponse create(
             @RequestBody UserProfileRequest request,
@@ -78,6 +93,11 @@ public class UserProfileController {
     }
 
     // ✅ GET OWN PROFILE ONLY
+    /* ================================================================
+     * METHOD: getMyProfile
+     * DESCRIPTION:
+     * Retrieves the profile of the currently authenticated user.
+     * ================================================================ */
     @GetMapping("/me")
     public UserProfileResponse getMyProfile(
             @AuthenticationPrincipal Jwt jwt) {
@@ -87,12 +107,24 @@ public class UserProfileController {
     }
 
     // ❗ INTERNAL USE ONLY (microservice call)
+    /* ================================================================
+     * METHOD: userExists
+     * DESCRIPTION:
+     * Checks if a user profile exists for the given user ID. Internally
+     * used for cross-microservice validation.
+     * ================================================================ */
     @GetMapping("/exists/{id}")
     public Boolean userExists(@PathVariable Long id) {
         return service.userExists(id);
     }
 
     // ✅ UPDATE OWN PROFILE
+    /* ================================================================
+     * METHOD: update
+     * DESCRIPTION:
+     * Updates the currently authenticated user's profile with the 
+     * newly provided profile data.
+     * ================================================================ */
     @PutMapping("/profile")
     public UserProfileResponse update(
             @RequestBody UserProfileRequest request,

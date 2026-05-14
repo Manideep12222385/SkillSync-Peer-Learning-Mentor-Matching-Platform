@@ -8,6 +8,15 @@ import org.springframework.web.bind.annotation.*;
 import com.skillsync.auth.entity.*;
 import com.skillsync.auth.repository.UserRepository;
 
+/*
+ * ================================================================
+ * AUTHOR: Manideep
+ * CLASS: AdminController
+ * DESCRIPTION:
+ * This controller handles administrative endpoints like managing and 
+ * verifying mentor registration approvals, blocking, and fetching lists.
+ * ================================================================
+ */
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -15,6 +24,11 @@ public class AdminController {
     @Autowired
     private UserRepository userRepository;
 
+    /* ================================================================
+     * METHOD: getPendingMentors
+     * DESCRIPTION:
+     * Returns a list of mentors that have registered but are awaiting approval.
+     * ================================================================ */
     @GetMapping("/mentor-requests")
     public List<User> getPendingMentors() {
 
@@ -24,6 +38,11 @@ public class AdminController {
         );
     }
 
+    /* ================================================================
+     * METHOD: approveMentor
+     * DESCRIPTION:
+     * Modifies the pending mentor's account status to active and verified.
+     * ================================================================ */
     @PutMapping("/mentors/{id}/approve")
     public String approveMentor(@PathVariable Long id) {
 
@@ -52,6 +71,11 @@ public class AdminController {
         return "Mentor approved successfully";
     }
 
+    /* ================================================================
+     * METHOD: rejectMentor
+     * DESCRIPTION:
+     * Changes a pending mentor request to rejected and disables the account.
+     * ================================================================ */
     @PutMapping("/mentors/{id}/reject")
     public String rejectMentor(@PathVariable Long id) {
 
@@ -74,6 +98,11 @@ public class AdminController {
         return "Mentor rejected successfully";
     }
 
+    /* ================================================================
+     * METHOD: blockUser
+     * DESCRIPTION:
+     * Bans any regular user or mentor from the system. Admin user overrides apply.
+     * ================================================================ */
     @PutMapping("/users/{id}/block")
     public String blockUser(@PathVariable Long id) {
 
@@ -99,6 +128,11 @@ public class AdminController {
         return "User blocked successfully";
     }
 
+    /* ================================================================
+     * METHOD: activateUser
+     * DESCRIPTION:
+     * Reactivates previously blocked users mapping them back to the platform.
+     * ================================================================ */
     @PutMapping("/users/{id}/activate")
     public String activateUser(@PathVariable Long id) {
 
@@ -118,10 +152,25 @@ public class AdminController {
         return "User activated successfully";
     }
 
+    /* ================================================================
+     * METHOD: getBlockedUsers
+     * DESCRIPTION:
+     * Facilitates tracking all user accounts actively blocked globally.
+     * ================================================================ */
     @GetMapping("/users/blocked")
     public List<User> getBlockedUsers() {
 
         return userRepository.findByAccountStatus(AccountStatus.BLOCKED);
+    }
+
+    /* ================================================================
+     * METHOD: getRejectedUsers
+     * DESCRIPTION:
+     * Retrieves users who have been rejected (e.g. denied mentor requests).
+     * ================================================================ */
+    @GetMapping("/users/rejected")
+    public List<User> getRejectedUsers() {
+        return userRepository.findByAccountStatus(AccountStatus.REJECTED);
     }
 
     private User getUser(Long id) {
@@ -130,6 +179,16 @@ public class AdminController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
     
+    @GetMapping("/users/active-learners")
+    public List<User> getActiveLearners() {
+        return userRepository.findByRoleAndAccountStatus(Role.ROLE_LEARNER, AccountStatus.ACTIVE);
+    }
+
+    @GetMapping("/users/active-mentors")
+    public List<User> getActiveMentors() {
+        return userRepository.findByRoleAndAccountStatus(Role.ROLE_MENTOR, AccountStatus.ACTIVE);
+    }
+
     @DeleteMapping("/users/{id}")
     public String deleteUser(@PathVariable Long id) {
 
@@ -144,5 +203,21 @@ public class AdminController {
         userRepository.delete(user);
 
         return "User deleted permanently";
+    }
+
+    /* ================================================================
+     * METHOD: getAdminStats
+     * DESCRIPTION:
+     * Retrieves high-level analytics for the admin dashboard.
+     * ================================================================ */
+    @GetMapping("/stats")
+    public java.util.Map<String, Long> getAdminStats() {
+        java.util.Map<String, Long> stats = new java.util.HashMap<>();
+        stats.put("totalUsers", userRepository.count());
+        stats.put("activeLearners", (long) userRepository.findByRoleAndAccountStatus(Role.ROLE_LEARNER, AccountStatus.ACTIVE).size());
+        stats.put("activeMentors", (long) userRepository.findByRoleAndAccountStatus(Role.ROLE_MENTOR, AccountStatus.ACTIVE).size());
+        stats.put("pendingMentors", (long) userRepository.findByRoleAndAccountStatus(Role.ROLE_MENTOR, AccountStatus.PENDING).size());
+        stats.put("blockedUsers", (long) userRepository.findByAccountStatus(AccountStatus.BLOCKED).size());
+        return stats;
     }
 }

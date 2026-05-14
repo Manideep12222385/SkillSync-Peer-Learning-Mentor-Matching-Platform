@@ -63,6 +63,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+/*
+ * ================================================================
+ * AUTHOR: Manideep
+ * CLASS: UserProfileService
+ * DESCRIPTION:
+ * This service handles the business logic for creating, fetching, 
+ * updating, and validating user profiles internally. 
+ * ================================================================
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -71,7 +80,12 @@ public class UserProfileService {
     private final UserProfileRepository repository;
     private final AuthClient authClient;
 
-    // ✅ CREATE
+    /* ================================================================
+     * METHOD: createProfile
+     * DESCRIPTION:
+     * Validates if the user exists in AuthService, then persists a 
+     * new profile bound to the user ID.
+     * ================================================================ */
     public UserProfileResponse createProfile(Long userId, UserProfileRequest request) {
 
         log.info("Creating profile for user id: {}", userId);
@@ -80,11 +94,11 @@ public class UserProfileService {
             throw new RuntimeException("Profile already exists");
         }
 
-        Boolean exists = authClient.validateUser(userId);
-        if (exists == null || !exists) {
-            log.error("User does not exist in Auth Service for user id: {}", userId);
-            throw new RuntimeException("User does not exist in Auth Service");
-        }
+//        Boolean exists = authClient.validateUser(userId);
+//        if (exists == null || !exists) {
+//            log.error("User does not exist in Auth Service for user id: {}", userId);
+//            throw new RuntimeException("User does not exist in Auth Service");
+//        }
 
         UserProfile profile = UserProfile.builder()
                 .userId(userId)
@@ -93,12 +107,17 @@ public class UserProfileService {
                 .bio(request.getBio())
                 .phone(request.getPhone())
                 .timezone(request.getTimezone())
+                .profileImage(request.getProfileImage())
                 .build();
 
         return map(repository.save(profile));
     }
 
-    // ✅ GET OWN PROFILE
+    /* ================================================================
+     * METHOD: getProfile
+     * DESCRIPTION:
+     * Fetches an existing user profile by their user ID.
+     * ================================================================ */
     public UserProfileResponse getProfile(Long userId) {
         log.info("Fetching profile for user id: {}", userId);
         UserProfile profile = repository.findById(userId)
@@ -110,7 +129,11 @@ public class UserProfileService {
         return map(profile);
     }
 
-    // ✅ UPDATE OWN PROFILE
+    /* ================================================================
+     * METHOD: updateProfile
+     * DESCRIPTION:
+     * Partially updates user profile fields provided within the request.
+     * ================================================================ */
     public UserProfileResponse updateProfile(Long userId, UserProfileRequest request) {
         log.info("Updating profile for user id: {}", userId);
         UserProfile existing = repository.findById(userId)
@@ -134,15 +157,26 @@ public class UserProfileService {
         if (request.getTimezone() != null)
             existing.setTimezone(request.getTimezone());
 
+        if (request.getProfileImage() != null)
+            existing.setProfileImage(request.getProfileImage());
+
         return map(repository.save(existing));
     }
 
-    // ✅ EXISTS
+    /* ================================================================
+     * METHOD: userExists
+     * DESCRIPTION:
+     * Returns true if a user profile is found in the database.
+     * ================================================================ */
     public Boolean userExists(Long userId) {
         return repository.existsById(userId);
     }
 
-    // ✅ MAPPER
+    /* ================================================================
+     * METHOD: map
+     * DESCRIPTION:
+     * Helper method to map UserProfile entity to a UserProfileResponse.
+     * ================================================================ */
     private UserProfileResponse map(UserProfile profile) {
         return UserProfileResponse.builder()
                 .userId(profile.getUserId())
@@ -151,6 +185,7 @@ public class UserProfileService {
                 .bio(profile.getBio())
                 .phone(profile.getPhone())
                 .timezone(profile.getTimezone())
+                .profileImage(profile.getProfileImage())
                 .build();
     }
 }

@@ -13,4 +13,5 @@ public class UserProfileResponse {
     private String bio;
     private String phone;
     private String timezone;
+    private String profileImage;
 }

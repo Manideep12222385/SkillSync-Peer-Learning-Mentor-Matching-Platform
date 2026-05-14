@@ -12,6 +12,15 @@ import com.skillsync.mentor.service.MentorService;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
 
+/*
+ * ================================================================
+ * AUTHOR: Manideep
+ * CLASS: MentorController
+ * DESCRIPTION:
+ * This controller handles mentor operations including profile creation,
+ * updating skills, managing mentor search filters by price, rating and skills.
+ * ================================================================
+ */
 @RestController
 @RequestMapping("/mentors")
 public class MentorController {
@@ -22,6 +31,11 @@ public class MentorController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    /* ================================================================
+     * METHOD: createProfile
+     * DESCRIPTION:
+     * Creates a mentor profile corresponding to an authenticated user ID.
+     * ================================================================ */
     @PostMapping("/profile")
     public MentorProfileResponseDto createProfile(
             HttpServletRequest httpRequest,
@@ -33,6 +47,24 @@ public class MentorController {
         return mentorService.createProfile(userId, request);
     }
 
+    /* ================================================================
+     * METHOD: getProfile
+     * DESCRIPTION:
+     * Retrieves the authenticated mentor's profile.
+     * ================================================================ */
+    @GetMapping("/profile")
+    public MentorProfileResponseDto getProfile(HttpServletRequest httpRequest) {
+        String token = extractToken(httpRequest);
+        Long userId = jwtUtil.extractUserId(token);
+        return mentorService.getProfile(userId);
+    }
+
+    /* ================================================================
+     * METHOD: updateProfile
+     * DESCRIPTION:
+     * Updates an existing mentor profile with newer data such as bio,
+     * experience, pricing, etc.
+     * ================================================================ */
     @PutMapping("/profile")
     public MentorProfileResponseDto updateProfile(
             HttpServletRequest httpRequest,
@@ -52,6 +84,11 @@ public class MentorController {
         throw new RuntimeException("Missing or invalid Authorization header");
     }
 
+    /* ================================================================
+     * METHOD: addSkillPut
+     * DESCRIPTION:
+     * Adds an existing skill to the authenticated mentor's offered skills list (PUT).
+     * ================================================================ */
     @PutMapping("/profile/skills/{skillId}")
     public String addSkillPut(
             @PathVariable Long skillId,
@@ -63,6 +100,11 @@ public class MentorController {
         return mentorService.addSkillToMentor(userId, skillId);
     }
 
+    /* ================================================================
+     * METHOD: addSkillPost
+     * DESCRIPTION:
+     * Adds an existing skill to the authenticated mentor's offered skills list (POST).
+     * ================================================================ */
     @PostMapping("/profile/skills/{skillId}")
     public String addSkillPost(
             @PathVariable Long skillId,
@@ -74,6 +116,27 @@ public class MentorController {
         return mentorService.addSkillToMentor(userId, skillId);
     }
 
+    /* ================================================================
+     * METHOD: removeSkill
+     * DESCRIPTION:
+     * Removes an existing skill from the authenticated mentor's offered skills list.
+     * ================================================================ */
+    @DeleteMapping("/profile/skills/{skillId}")
+    public String removeSkill(
+            @PathVariable Long skillId,
+            HttpServletRequest httpRequest) {
+
+        String token = extractToken(httpRequest);
+        Long userId = jwtUtil.extractUserId(token);
+
+        return mentorService.removeSkillFromMentor(userId, skillId);
+    }
+
+    /* ================================================================
+     * METHOD: searchMentors
+     * DESCRIPTION:
+     * Multi-field search mapping sorting via price, rating, or availability.
+     * ================================================================ */
     @GetMapping("/search")
     public Page<Mentor> searchMentors(
             @RequestParam(required = false) Double minPrice,
@@ -88,6 +151,11 @@ public class MentorController {
                 minPrice, maxPrice, rating, available, page, size, sortBy);
     }
 
+    /* ================================================================
+     * METHOD: searchByPrice
+     * DESCRIPTION:
+     * Facilitates filtering mentors mapped to a specific hourly rate range.
+     * ================================================================ */
     @GetMapping("/search/price")
     public Page<Mentor> searchByPrice(
             @RequestParam Double min,
@@ -99,6 +167,11 @@ public class MentorController {
         return mentorService.searchByPrice(min, max, page, size, sortBy);
     }
 
+    /* ================================================================
+     * METHOD: searchByRating
+     * DESCRIPTION:
+     * Retrieves mentors starting out with a rating above a set threshold.
+     * ================================================================ */
     @GetMapping("/search/rating")
     public Page<Mentor> searchByRating(
             @RequestParam Double rating,
@@ -109,6 +182,11 @@ public class MentorController {
         return mentorService.searchByRating(rating, page, size, sortBy);
     }
 
+    /* ================================================================
+     * METHOD: searchBySkill
+     * DESCRIPTION:
+     * Filters mentors explicitly based on a provided global skill ID.
+     * ================================================================ */
     @GetMapping("/search/skill/{skillId}")
     public Page<Mentor> searchBySkill(
             @PathVariable Long skillId,
@@ -118,16 +196,31 @@ public class MentorController {
         return mentorService.searchMentorBySkill(skillId, page, size);
     }
 
+    /* ================================================================
+     * METHOD: mentorExists
+     * DESCRIPTION:
+     * Evaluates whether a generic mentor ID matches an active mentor via Feign.
+     * ================================================================ */
     @GetMapping("/exists/{mentorId}")
     public Boolean mentorExists(@PathVariable Long mentorId) {
         return mentorService.mentorExists(mentorId);
     }
 
+    /* ================================================================
+     * METHOD: getUserIdByMentorId
+     * DESCRIPTION:
+     * Retrieves the Global User ID representing a mentor for internal checks.
+     * ================================================================ */
     @GetMapping("/internal/{mentorId}/userid")
     public Long getUserIdByMentorId(@PathVariable Long mentorId) {
         return mentorService.getUserIdByMentorId(mentorId);
     }
     
+    /* ================================================================
+     * METHOD: getMentorIdByUserId
+     * DESCRIPTION:
+     * Resolves the system's Mentor ID assigned explicitly to the User ID.
+     * ================================================================ */
     @GetMapping("/by-user/{id}")
     public Long getMentorIdByUserId(@PathVariable("id") Long userId) {
         return mentorService.getMentorIdByUserId(userId);
@@ -147,4 +240,5 @@ public class MentorController {
         mentorService.updateRating(mentorId, rating);
         return "Rating updated";
     }
+    
 }

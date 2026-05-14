@@ -26,6 +26,20 @@ public class Session {
 
     private Integer durationMinutes;
 
+    private String topic;
+    
+    @Column(length = 500)
+    private String meetingLink;
+    
+    @Column(length = 500)
+    private String rejectionReason;
+
     @Enumerated(EnumType.STRING)
     private SessionStatus status;
+
+    @org.hibernate.annotations.CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @org.hibernate.annotations.UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

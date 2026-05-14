@@ -173,7 +173,7 @@ class SessionServiceTest {
         when(mentorClient.getMentorProfileId(1L)).thenReturn(10L);
         when(sessionRepository.save(any(Session.class))).thenReturn(testSession);
 
-        Session session = sessionService.acceptSession(100L, 1L);
+        Session session = sessionService.acceptSession(100L, 1L, "http://meet.google.com/test");
 
         assertEquals(SessionStatus.ACCEPTED, session.getStatus());
         verify(rabbitTemplate, times(1)).convertAndSend(eq("session.queue"), any(SessionEvent.class));
@@ -184,7 +184,7 @@ class SessionServiceTest {
         when(sessionRepository.findById(100L)).thenReturn(Optional.of(testSession));
         when(mentorClient.getMentorProfileId(1L)).thenReturn(99L); // Wrong mentor!
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> sessionService.acceptSession(100L, 1L));
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> sessionService.acceptSession(100L, 1L, "http://meet.google.com/test"));
         assertEquals("You can accept only your sessions", ex.getMessage());
     }
 
@@ -193,7 +193,7 @@ class SessionServiceTest {
         when(sessionRepository.findById(100L)).thenReturn(Optional.of(testSession)); // AVAILABLE
         when(mentorClient.getMentorProfileId(1L)).thenReturn(10L);
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> sessionService.acceptSession(100L, 1L));
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> sessionService.acceptSession(100L, 1L, "http://meet.google.com/test"));
         assertEquals("Only requested sessions can be accepted", ex.getMessage());
     }
 
@@ -205,7 +205,7 @@ class SessionServiceTest {
         when(mentorClient.getMentorProfileId(1L)).thenReturn(10L);
         when(sessionRepository.save(any(Session.class))).thenReturn(testSession);
 
-        Session session = sessionService.rejectSession(100L, 1L);
+        Session session = sessionService.rejectSession(100L, 1L, "reason");
 
         assertEquals(SessionStatus.REJECTED, session.getStatus());
         verify(sessionRepository, times(1)).save(testSession);
@@ -217,7 +217,7 @@ class SessionServiceTest {
         when(sessionRepository.findById(100L)).thenReturn(Optional.of(testSession));
         when(mentorClient.getMentorProfileId(1L)).thenReturn(10L);
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> sessionService.rejectSession(100L, 1L));
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> sessionService.rejectSession(100L, 1L, "reason"));
         assertEquals("Only requested sessions can be rejected", ex.getMessage());
     }
     
@@ -225,7 +225,7 @@ class SessionServiceTest {
     void testRejectSession_NotYours() {
         when(sessionRepository.findById(100L)).thenReturn(Optional.of(testSession));
         when(mentorClient.getMentorProfileId(1L)).thenReturn(99L);
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> sessionService.rejectSession(100L, 1L));
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> sessionService.rejectSession(100L, 1L, "reason"));
         assertEquals("You can reject only your sessions", ex.getMessage());
     }
 

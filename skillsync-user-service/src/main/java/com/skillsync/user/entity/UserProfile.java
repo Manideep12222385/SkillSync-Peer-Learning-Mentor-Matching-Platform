@@ -24,4 +24,7 @@ public class UserProfile {
     private String phone;
 
     private String timezone;
+
+    @Column(columnDefinition = "LONGTEXT")
+    private String profileImage;
 }

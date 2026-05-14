@@ -1,0 +1,104 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SkillsyncConfigServerApplication<skillsync-config-server>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.skillsync.auth.SkillsyncConfigServerApplication",
+            "projectName": "skillsync-config-server",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SkillsyncEurekaServerApplication<skillsync-eureka-server>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.skillsync.auth.SkillsyncEurekaServerApplication",
+            "projectName": "skillsync-eureka-server",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SkillsyncAuthServiceApplication<skillsync-auth-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.skillsync.auth.SkillsyncAuthServiceApplication",
+            "projectName": "skillsync-auth-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SkillsyncApiGatewayApplication<skillsync-api-gateway>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.skillsync.gateway.SkillsyncApiGatewayApplication",
+            "projectName": "skillsync-api-gateway",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SkillsyncMentorServiceApplication<skillsync-mentor-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.skillsync.mentor.SkillsyncMentorServiceApplication",
+            "projectName": "skillsync-mentor-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SkillsyncNotificationServiceApplication<skillsync-notification-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.skillsync.notification.SkillsyncNotificationServiceApplication",
+            "projectName": "skillsync-notification-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SkillsyncReviewServiceApplication<skillsync-review-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.skillsync.review.SkillsyncReviewServiceApplication",
+            "projectName": "skillsync-review-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SkillsyncSessionServiceApplication<skillsync-session-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.skillsync.session.SkillsyncSessionServiceApplication",
+            "projectName": "skillsync-session-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SkillsyncSkillServiceApplication<skillsync-skill-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.skillsync.skill.SkillsyncSkillServiceApplication",
+            "projectName": "skillsync-skill-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SkillsyncUserServiceApplication<skillsync-user-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.skillsync.user.SkillsyncUserServiceApplication",
+            "projectName": "skillsync-user-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

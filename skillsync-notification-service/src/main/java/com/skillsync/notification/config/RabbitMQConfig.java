@@ -5,7 +5,7 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.*;
 
-import feign.RequestInterceptor;
+
 
 @Configuration
 public class RabbitMQConfig {

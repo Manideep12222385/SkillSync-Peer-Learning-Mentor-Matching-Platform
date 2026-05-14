@@ -155,7 +155,7 @@ class MentorServiceTest {
     @Test
     void testAddSkillToMentor_Success() {
         when(mentorRepository.findByUserId(10L)).thenReturn(Optional.of(testMentor));
-        when(skillClient.getSkillById(100L)).thenReturn(testSkill);
+        when(skillClient.skillExists(100L)).thenReturn(true);
         when(mentorSkillRepository.findByMentorId(1L)).thenReturn(Collections.emptyList());
 
         String response = mentorService.addSkillToMentor(10L, 100L);
@@ -167,17 +167,16 @@ class MentorServiceTest {
     @Test
     void testAddSkillToMentor_InactiveSkill() {
         when(mentorRepository.findByUserId(10L)).thenReturn(Optional.of(testMentor));
-        testSkill.setActive(false);
-        when(skillClient.getSkillById(100L)).thenReturn(testSkill);
+        when(skillClient.skillExists(100L)).thenReturn(false);
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> mentorService.addSkillToMentor(10L, 100L));
-        assertEquals("Skill is inactive", ex.getMessage());
+        assertEquals("Skill is inactive or not found", ex.getMessage());
     }
 
     @Test
     void testAddSkillToMentor_AlreadyExists() {
         when(mentorRepository.findByUserId(10L)).thenReturn(Optional.of(testMentor));
-        when(skillClient.getSkillById(100L)).thenReturn(testSkill);
+        when(skillClient.skillExists(100L)).thenReturn(true);
         
         MentorSkill existingSkill = MentorSkill.builder().mentorId(1L).skillId(100L).build();
         when(mentorSkillRepository.findByMentorId(1L)).thenReturn(Collections.singletonList(existingSkill));

@@ -37,10 +37,11 @@ public class SecurityConfig {
 
                 http
                                 .csrf(csrf -> csrf.disable())
-                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .cors(cors -> cors.disable())
                                 .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/skills", "/skills/search", "/skills/exists/**").permitAll()
-                                                .requestMatchers("/skills/**").hasRole("ADMIN")
+                                                .requestMatchers("/skills", "/skills/**").hasRole("ADMIN")
                                                 .anyRequest().permitAll())
 
                                 // ⭐ ADD THIS BLOCK (very important)
@@ -78,25 +79,4 @@ public class SecurityConfig {
                 return authConverter;
         }
         
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource() {
-            CorsConfiguration configuration = new CorsConfiguration();
-
-            // Allow the specific origin of your Gateway/Swagger UI
-            configuration.setAllowedOrigins(List.of("http://localhost:8085"));
-
-            // Allow standard methods
-            configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-            // Allow all headers (Content-Type, Authorization, etc.)
-            configuration.setAllowedHeaders(List.of("*"));
-
-            // Allow credentials for Auth headers
-            configuration.setAllowCredentials(true);
-
-            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-            // Applying this configuration to all endpoints
-            source.registerCorsConfiguration("/**", configuration);
-            return source;
-        }
 }

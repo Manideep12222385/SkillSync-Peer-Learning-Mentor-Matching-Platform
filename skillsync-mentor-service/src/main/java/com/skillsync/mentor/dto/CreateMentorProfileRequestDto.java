@@ -17,4 +17,11 @@ public class CreateMentorProfileRequestDto {
 
     @NotNull
     private Boolean available;
+    
+    private String profileImage;
+
+    @NotBlank(message = "UPI ID is required")
+    private String upiId;
+
+    private String qrCodeImage;
 }

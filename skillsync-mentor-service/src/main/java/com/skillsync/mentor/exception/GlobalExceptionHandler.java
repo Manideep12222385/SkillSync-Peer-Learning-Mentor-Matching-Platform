@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * @author manideep
+ * 
+ * Provides business logic and REST endpoints for the service.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

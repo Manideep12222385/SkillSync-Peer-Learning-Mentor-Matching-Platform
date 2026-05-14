@@ -1,14 +1,24 @@
 package com.skillsync.gateway.config;
 
-import org.springframework.context.annotation.Configuration;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
+/**
+ * @author manideep
+ * 
+ * Provides business logic and REST endpoints for the service.
+ */
 @RestController
 public class SwaggerConfigController {
 
+    /**
+     * Executes the corresponding operation for this method.
+     * 
+     * @return adequate response or processes the request
+     */
     @GetMapping("/v3/api-docs/swagger-config")
     public Map<String, Object> swaggerConfig() {
 

@@ -3,7 +3,9 @@ spring:
     name: api-gateway
 
   config:
-    import: configserver:http://localhost:8888
+    import: 
+      - optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+      - optional:file:./src/main/resources/application-override.yml
 
   cloud:
     config:

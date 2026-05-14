@@ -22,6 +22,8 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
 
     List<Session> findByStatus(SessionStatus status);
     
+    List<Session> findByStatusAndSessionTimeBefore(SessionStatus status, LocalDateTime time);
+    
     Page<Session> findByMentorId(Long mentorId, Pageable pageable);
 
     Page<Session> findByLearnerId(Long learnerId, Pageable pageable);

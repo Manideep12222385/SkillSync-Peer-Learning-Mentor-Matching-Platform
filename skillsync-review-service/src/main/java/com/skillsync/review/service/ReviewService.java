@@ -13,6 +13,15 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/*
+ * ================================================================
+ * AUTHOR: Manideep
+ * CLASS: ReviewService
+ * DESCRIPTION:
+ * This service implements logic for submitting, retrieving, averaging,
+ * and deleting session reviews between learners and mentors.
+ * ================================================================
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -22,7 +31,11 @@ public class ReviewService {
 	private final SessionClient sessionClient;
 	private final MentorClient mentorClient;
 
-	// ⭐ SUBMIT REVIEW
+	/* ================================================================
+	 * METHOD: submitReview
+	 * DESCRIPTION:
+	 * Submits a new review after fetching full session context from Feign.
+	 * ================================================================ */
 	public Review submitReview(ReviewRequest request, Long learnerId) {
 		log.info("Submitting review for session id: {} by learner id: {}", request.getSessionId(), learnerId);
 
@@ -46,7 +59,7 @@ public class ReviewService {
 	        throw new RuntimeException("You can review only your own sessions");
 	    }
 
-	    if (!"COMPLETED".equalsIgnoreCase(session.getStatus())) {
+	    if (!"COMPLETED".equalsIgnoreCase(session.getStatus()) && !"ACCEPTED".equalsIgnoreCase(session.getStatus())) {
 			log.error("Attempting to review non-completed session id: {}. Session status: {}", request.getSessionId(), session.getStatus());
 	        throw new RuntimeException("Review allowed only after session completion");
 	    }
@@ -76,17 +89,29 @@ public class ReviewService {
 	    return saved;
 	}
 
-	// ⭐ GET ALL REVIEWS FOR MENTOR
+	/* ================================================================
+	 * METHOD: getMentorReviews
+	 * DESCRIPTION:
+	 * Queries and returns all individual reviews received by a given mentor.
+	 * ================================================================ */
 	public List<Review> getMentorReviews(Long mentorId) {
 		return repository.findByMentorId(mentorId);
 	}
 
-	// ⭐ GET ALL REVIEWS BY LEARNER
+	/* ================================================================
+	 * METHOD: getLearnerReviews
+	 * DESCRIPTION:
+	 * Returns the comprehensive list of reviews submitted by a learner.
+	 * ================================================================ */
 	public List<Review> getLearnerReviews(Long learnerId) {
 		return repository.findByLearnerId(learnerId);
 	}
 
-	// ⭐ GET AVERAGE RATING
+	/* ================================================================
+	 * METHOD: getAverageRating
+	 * DESCRIPTION:
+	 * Maps completely over individual review scores to extract mentor averages.
+	 * ================================================================ */
 	public Double getAverageRating(Long mentorId) {
 
 		List<Review> reviews = repository.findByMentorId(mentorId);
@@ -102,7 +127,11 @@ public class ReviewService {
 		return sum / reviews.size();
 	}
 
-	// ⭐ EDIT REVIEW
+	/* ================================================================
+	 * METHOD: editReview
+	 * DESCRIPTION:
+	 * Updates the internal properties (content/rating) of an existing review.
+	 * ================================================================ */
 	public Review editReview(Long id, ReviewRequest request, Long learnerId) {
 		log.info("Editing review id: {} by learner id: {}", id, learnerId);
 
@@ -128,7 +157,11 @@ public class ReviewService {
 		return updated;
 	}
 
-	// ⭐ DELETE REVIEW
+	/* ================================================================
+	 * METHOD: deleteReview
+	 * DESCRIPTION:
+	 * Deletes a previously maintained review and updates mentor ratings contextually.
+	 * ================================================================ */
 	public void deleteReview(Long id, Long learnerId) {
 		log.info("Deleting review id: {} by learner id: {}", id, learnerId);
 

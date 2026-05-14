@@ -1,0 +1,76 @@
+:root {
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --accent-color: #e11d48;
+  --accent-glow: rgba(225, 29, 72, 0.5);
+  --accent-hover: #be123c;
+  --gradient-start: #ff6b6b;
+  --gradient-end: #e11d48;
+  
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+  
+  --font-family: 'Outfit', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Beautiful custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: var(--font-family);
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Global Dark Theme Implementation */
+body.dark-theme {
+  filter: invert(1) hue-rotate(180deg);
+  background-color: #f3f4f6;
+}
+
+/* Re-invert images, avatars, and specific colorful elements so they don't look weird */
+body.dark-theme img, 
+body.dark-theme .user-avatar, 
+body.dark-theme .stat-icon,
+body.dark-theme .status-badge {
+  filter: invert(1) hue-rotate(180deg);
+}

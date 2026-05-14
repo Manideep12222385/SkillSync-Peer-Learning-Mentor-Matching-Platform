@@ -15,6 +15,11 @@ import com.skillsync.auth.service.AuthService;
 
 import jakarta.validation.Valid;
 
+/**
+ * @author manideep
+ * 
+ * Provides business logic and REST endpoints for the service.
+ */
 @RestController
 @RequestMapping("/auth")
 @Validated
@@ -26,6 +31,11 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;   // ⭐ IMPORTANT ADD
 
+    /**
+     * Executes the corresponding operation for this method.
+     * 
+     * @return adequate response or processes the request
+     */
     @PostMapping("/register")
     public RegisterResponseDto register(
             @Valid @RequestBody RegisterRequestDto request) {
@@ -33,6 +43,11 @@ public class AuthController {
         return authService.register(request);
     }
 
+    /**
+     * Executes the corresponding operation for this method.
+     * 
+     * @return adequate response or processes the request
+     */
     @PostMapping("/login")
     public LoginResponseDto login(
             @Valid @RequestBody LoginRequestDto request) {
@@ -40,11 +55,21 @@ public class AuthController {
         return authService.login(request);
     }
 
+    /**
+     * Executes the corresponding operation for this method.
+     * 
+     * @return adequate response or processes the request
+     */
     @GetMapping("/internal/users/{userId}")
     public Boolean userExists(@PathVariable Long userId) {
         return userRepository.existsById(userId);
     }
 
+    /**
+     * Executes the corresponding operation for this method.
+     * 
+     * @return adequate response or processes the request
+     */
     @GetMapping("/internal/users/{userId}/email")
     public String getUserEmail(@PathVariable Long userId) {
         return userRepository.findById(userId)
@@ -52,6 +77,11 @@ public class AuthController {
                 .orElse("unknown@example.com");
     }
 
+    /**
+     * Executes the corresponding operation for this method.
+     * 
+     * @return adequate response or processes the request
+     */
     @GetMapping("/internal/users/{userId}/name")
     public String getUserName(@PathVariable Long userId) {
         return userRepository.findById(userId)
@@ -60,6 +90,11 @@ public class AuthController {
     }
 
     
+    /**
+     * Executes the corresponding operation for this method.
+     * 
+     * @return adequate response or processes the request
+     */
     @PostMapping("/forgot-password")
     public String forgotPassword(
             @RequestBody ForgotPasswordRequestDto request) {
@@ -67,6 +102,11 @@ public class AuthController {
         return authService.forgotPassword(request.getEmail());
     }
 
+    /**
+     * Executes the corresponding operation for this method.
+     * 
+     * @return adequate response or processes the request
+     */
     @PostMapping("/reset-password")
     public String resetPassword(
             @RequestBody ResetPasswordRequestDto request) {
